@@ -8,7 +8,8 @@ headers:
   accept_encoding: "gzip, deflate"
   referer: "https://www.nseindia.com/get-quotes/equity?symbol=HDFCBANK"
 
-download_dir: "data/bhavcopy"
+download_dir: "data/bhavcopy/downloaded_zip"
+extract_dir: "data/bhavcopy/extracted_csv"
 
 retry:
   stop_after_attempts: 3

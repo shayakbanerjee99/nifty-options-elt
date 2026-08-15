@@ -9,7 +9,6 @@ from config.config import client_config
 
 import logging
 logger = logging.getLogger(__name__)
-print(f"LOGGER NAME: {logger.name!r}")
 
 # Rate limiting
 limiter = Limiter(
@@ -45,7 +44,7 @@ class NSEClient:
         logger.debug("NSEClient initialized with download_dir=%s", self._download_dir)
 
     @retry_download_bhavcopy
-    def download_bhavcopy(self, date: datetime):
+    def download_bhavcopy(self, date: datetime)->str :
         date_str = date.strftime("%Y%m%d")
 
         # Check for trading holiday
@@ -59,7 +58,6 @@ class NSEClient:
         logger.info("Requesting bhavcopy for %s", date_str)
 
         r = self._client.get(url, headers=self.headers)
-        logger.debug("GET %s -> %s", r.url, r.status_code)
 
         r.raise_for_status()
 
@@ -73,6 +71,8 @@ class NSEClient:
         file_path = self._download_dir / file_name
         file_path.write_bytes(r.content)
         logger.debug(f'Saved to {file_path}')
+
+        return file_path
 
     def close(self):
         self._client.close()

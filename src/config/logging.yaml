@@ -17,17 +17,11 @@ handlers:
     class: logging.handlers.RotatingFileHandler
     level: DEBUG
     formatter: standard
-    filename: "logs/nse_client.log"
+    filename: "logs/logs.log"
     maxBytes: 5242880   # 5 MB
     backupCount: 3
     encoding: utf-8
 
-loggers:
-  nse_client:
-    level: DEBUG
-    handlers: [console, file]
-    propagate: false
-
 root:
-  level: WARNING
+  level: DEBUG
   handlers: [console, file]
