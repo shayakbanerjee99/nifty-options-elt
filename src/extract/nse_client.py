@@ -6,7 +6,6 @@ from pyrate_limiter import Rate, Limiter
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from config.config import client_config
-from config.logging_setup import setup_logging
 
 import logging
 logger = logging.getLogger(__name__)
