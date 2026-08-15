@@ -1,0 +1,20 @@
+archive_url: "https://nsearchives.nseindia.com"
+
+headers:
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/118.0"
+  accept: "*/*"
+  accept_language: "en-US,en;q=0.5"
+  accept_encoding: "gzip, deflate"
+  referer: "https://www.nseindia.com/get-quotes/equity?symbol=HDFCBANK"
+
+download_dir: "data/bhavcopy"
+
+retry:
+  stop_after_attempts: 3
+  wait_multiplier: 1.0
+  wait_min: 1.0
+  wait_max: 3.0
+
+rate_limit:
+  max_requests: 1
+  duration_milliseconds: 1000
