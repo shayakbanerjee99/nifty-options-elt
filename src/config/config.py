@@ -37,6 +37,7 @@ class NSEClientConfig(BaseSettings):
 
     download_dir: Path
     archive_url: str
+    connection_timeout: float
     headers: HeaderSettings
     retry: RetrySettings
     rate_limit: RateLimitSettings

@@ -1,11 +1,10 @@
-from pathlib import Path
 from datetime import datetime
-from pyrate_limiter import Duration, Rate, Limiter
+import pandas_market_calendars as mcal
+
+from pyrate_limiter import Rate, Limiter
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 import httpx
-from tenacity import retry
-
 from config.config import client_config
 
 # Rate limiting
@@ -16,6 +15,16 @@ limiter = Limiter(
     )
 )
 
+# Retry decorator
+retry_download_bhavcopy = retry(
+    stop=stop_after_attempt(client_config.retry.stop_after_attempts),
+    wait=wait_exponential(
+        multiplier=client_config.retry.wait_multiplier,
+        min=client_config.retry.wait_min,
+        max=client_config.retry.wait_max),
+    retry=retry_if_exception_type((httpx.TransportError, httpx.HTTPStatusError))
+)
+
 class NSEClient:
     def __init__(self):
         self.archive_url = client_config.archive_url
@@ -23,21 +32,25 @@ class NSEClient:
 
         self._client = httpx.Client(
             headers = self.headers,
-            timeout = 30.0
+            timeout = client_config.connection_timeout
         )
 
         self._download_dir = client_config.download_dir
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=1, max=3),
-        retry=retry_if_exception_type((httpx.TransportError, httpx.HTTPStatusError))
-    )
-    def download_bhavcopy(self, date: datetime):
-        formatted_date = date.strftime("%Y%m%d")
-        url = f"{self.archive_url}/content/fo/BhavCopy_NSE_FO_0_0_0_{formatted_date}_F_0000.csv.zip"
+        self._nse_calendar = mcal.get_calendar('NSE')
 
-        limiter.try_acquire('bhavcopy_api')
+    @retry_download_bhavcopy
+    def download_bhavcopy(self, date: datetime):
+        date_str = date.strftime("%Y%m%d")
+
+        # Check for trading holiday
+        valid_days = self._nse_calendar.valid_days(date_str, date_str)
+        if valid_days.empty:
+            raise RuntimeError(f"{date_str} is a trading holiday")
+
+        url = f"{self.archive_url}/content/fo/BhavCopy_NSE_FO_0_0_0_{date_str}_F_0000.csv.zip"
+
+        limiter.try_acquire('bhavcopy_api') # Request rate limit
         r = self._client.get(url, headers=self.headers)
         print(r.url, r.status_code)
 
