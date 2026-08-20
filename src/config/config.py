@@ -96,6 +96,39 @@ class ExtractorConfig(BaseSettings):
             YamlConfigSettingsSource(settings_cls),
         )
 
+class DBConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        yaml_file=CONFIG_FILE,
+        yaml_file_encoding="utf-8",
+        extra="ignore",
+        populate_by_name=True,
+    )
+
+    db_path: Path
+
+    @field_validator("db_path")
+    @classmethod
+    def resolve_and_create_db_path(cls, v: Path) -> Path:
+        resolved = v if v.is_absolute() else PROJECT_ROOT / v
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        return resolved
+
+    @classmethod
+    def settings_customise_sources(
+            cls,
+            settings_cls: type[BaseSettings],
+            init_settings: PydanticBaseSettingsSource,
+            env_settings: PydanticBaseSettingsSource,
+            dotenv_settings: PydanticBaseSettingsSource,
+            file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        return (
+            init_settings,
+            env_settings,
+            YamlConfigSettingsSource(settings_cls),
+        )
+
 
 client_config = NSEClientConfig()
 extractor_config = ExtractorConfig()
+db_config = DBConfig()
