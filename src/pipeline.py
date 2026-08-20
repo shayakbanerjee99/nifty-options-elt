@@ -1,4 +1,8 @@
+"""Runs the end-to-end ETL flow for a single trading day: download the NSE
+bhavcopy, extract it, and load NIFTY options rows into duckdb."""
+
 from datetime import datetime
+import logging
 
 from db import get_connection
 from extractor import extract
@@ -6,7 +10,6 @@ from load import load_bhavcopy
 from nse_client import NSEClient
 from schema import create_schema
 
-import logging
 from logging_setup import setup_logging
 logger = logging.getLogger(__name__)
 
@@ -17,7 +20,6 @@ def run_elt(date: datetime) -> None:
     nse_client = NSEClient()
     try:
         # Extract
-        nse_client.download_bhavcopy(date)
         zip_path = nse_client.download_bhavcopy(date)
         csv_file_path = extract(zip_path, date)
         nse_client.close()
