@@ -4,11 +4,11 @@ bhavcopy, extract it, and load NIFTY options rows into duckdb."""
 from datetime import datetime
 import logging
 
-from db import get_connection
-from extractor import extract
-from load import load_bhavcopy
-from nse_client import NSEClient
-from schema import create_schema
+from extract.extractor import extract
+from extract.nse_client import NSEClient
+from storage.db import get_connection
+from storage.load import load_bhavcopy
+from storage.schema import create_schema
 
 from logging_setup import setup_logging
 logger = logging.getLogger(__name__)
