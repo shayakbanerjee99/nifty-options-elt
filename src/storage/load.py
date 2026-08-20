@@ -1,14 +1,20 @@
+"""Loads a bhavcopy CSV into the nifty_options table filtered to a single symbol."""
+
 from duckdb import DuckDBPyConnection
 
 import logging
 logger = logging.getLogger(__name__)
 
 def load_bhavcopy(con: DuckDBPyConnection, file_path: str, symbol: str):
+    """Executes the INSERT built by build_load_query against an open connection."""
     query = build_load_query(file_path, symbol)
     con.execute(query)
     logger.info("Executed load query")
 
 def build_load_query(csv_path: str, symbol: str) -> str:
+    """Builds the INSERT query that maps NSE's raw bhavcopy column
+    names onto the nifty_options schema and filters to the given symbol."""
+
     query = f"""
     INSERT INTO nifty_options
     SELECT

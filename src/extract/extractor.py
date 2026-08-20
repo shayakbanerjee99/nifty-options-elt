@@ -1,4 +1,5 @@
-from nse_client import NSEClient
+"""Extracts the CSV from a downloaded bhavcopy zip and renames it to a
+date-stamped filename."""
 
 from datetime import datetime
 import zipfile
@@ -9,6 +10,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 def extract(zip_file: str, date: datetime):
+    """Extracts the single CSV inside zip_file into extractor_config.extract_dir,
+    renaming it to bhavcopy_<YYYYMMDD>.csv.
+
+    Assumes the zip contains exactly one file (NSE bhavcopy archives always do).
+    """
+
     with zipfile.ZipFile(zip_file) as zf:
         namelist = zf.namelist()
         csv_path = namelist[0]

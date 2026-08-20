@@ -10,7 +10,10 @@ from config.config import client_config
 import logging
 logger = logging.getLogger(__name__)
 
-# Rate limiting
+"""HTTP client for downloading NSE F&O bhavcopy files, with NSE-calendar-aware
+holiday checking, rate limiting, and retry on transient failures."""
+
+# Rate limiting - Same instance is shared across all NSEClient instances
 limiter = Limiter(
     Rate(
         client_config.rate_limit.max_requests,
@@ -18,7 +21,7 @@ limiter = Limiter(
     )
 )
 
-# Retry decorator
+# Retry decorator - Retries on network/HTTP errors
 retry_download_bhavcopy = retry(
     stop=stop_after_attempt(client_config.retry.stop_after_attempts),
     wait=wait_exponential(
@@ -29,6 +32,8 @@ retry_download_bhavcopy = retry(
 )
 
 class NSEClient:
+    """Wrapper around httpx.Client for fetching NSE bhavcopy zip files."""
+
     def __init__(self):
         self.archive_url = client_config.archive_url
         self.headers = client_config.headers.model_dump(by_alias=True)
@@ -45,6 +50,12 @@ class NSEClient:
 
     @retry_download_bhavcopy
     def download_bhavcopy(self, date: datetime)->str :
+        """Downloads the bhavcopy zip for the given date and saves it to disk.
+
+        Raises RuntimeError if the date is a trading holiday, or if NSE returns
+        an HTML page instead of the file (happens when the file isn't published yet).
+        Returns the path the zip was saved to.
+        """
         date_str = date.strftime("%Y%m%d")
 
         # Check for trading holiday
@@ -61,6 +72,8 @@ class NSEClient:
 
         r.raise_for_status()
 
+        # NSE returns a 200 with an HTML error page (not a proper 404) when the
+        # file for the given date isn't published. Check content-type to catch this
         if r.headers.get('content-type') and "text/html" in r.headers.get('content-type'):
             logger.warning("NSE returned HTML instead of a file for %s — likely not yet published", date_str)
             raise RuntimeError("NSE file is unavailable or not yet updated.")
@@ -75,5 +88,6 @@ class NSEClient:
         return file_path
 
     def close(self):
+        """Closes the underlying httpx client. Call once done downloading."""
         self._client.close()
         logger.debug("NSEClient closed")
