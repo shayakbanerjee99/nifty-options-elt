@@ -11,6 +11,8 @@ headers:
 download_dir: "data/bhavcopy/downloaded_zip"
 extract_dir: "data/bhavcopy/extracted_csv"
 
+db_path: "data/db/nsedata.db"
+
 retry:
   stop_after_attempts: 3
   wait_multiplier: 1.0

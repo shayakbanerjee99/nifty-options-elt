@@ -5,7 +5,6 @@ import zipfile
 
 from config.config import extractor_config
 
-from config.logging_setup import setup_logging
 import logging
 logger = logging.getLogger(__name__)
 
@@ -24,16 +23,6 @@ def extract(zip_file: str, date: datetime):
 
         return target_path
 
-
-if __name__ == "__main__":
-    setup_logging()
-    nse_client = NSEClient()
-    try:
-        date = datetime(2026, 8, 13)
-        zip_path = nse_client.download_bhavcopy(date)
-        csv_file_path = extract(zip_path, date)
-    except RuntimeError as e:
-        logger.error(e)
 
 
 
