@@ -8,7 +8,7 @@ def transform_bhavcopy_csv(file_path: str, symbol: str) -> pd.DataFrame:
                'LastPric', 'PrvsClsgPric', 'UndrlygPric', 'SttlmPric', 'OpnIntrst',
                'ChngInOpnIntrst', 'TtlTradgVol', 'TtlTrfVal', 'TtlNbOfTxsExctd']
 
-    df = pd.read_csv(file_path)
+    df = pd.read_csv(file_path, usecols=columns)
 
     # Filter using the symbol, e.g., NIFTY, BANKNIFTY, etc.
     df = df[df['TckrSymb'] == symbol]
