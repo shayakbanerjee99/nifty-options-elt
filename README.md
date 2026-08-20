@@ -1,4 +1,4 @@
-# nifty-options-etl
+# nifty-options-elt
 
 Extracts historical F&O data for NIFTY index using daily bhavcopy data published by the NSE, loads it into a local [DuckDB](https://duckdb.org/) database, and transforms it to query F&O data and historical option chains for backtesting multi-leg option strategies
 
