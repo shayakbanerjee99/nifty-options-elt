@@ -26,10 +26,11 @@ def run_elt(date: datetime) -> None:
 
         # Load and Transform
         with get_connection() as con:
-            create_schema(con)
+            create_schema(con) # idempotent - safe to call every run
             load_bhavcopy(con, csv_file_path, 'NIFTY')
 
     except RuntimeError as e:
+        # Catches holiday/unavailable-file errors raised by NSEClient
         logger.error(e)
 
 if __name__ == '__main__':

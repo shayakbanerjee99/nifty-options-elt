@@ -29,5 +29,6 @@ CREATE TABLE IF NOT EXISTS nifty_options (
 """
 
 def create_schema(con):
+    """Creates the nifty_options table if it doesn't already exist. Idempotent - Safe to call on every run."""
     con.execute(CREATE_NIFTY_OPTIONS_TABLE)
     logger.info("Executed create table command")

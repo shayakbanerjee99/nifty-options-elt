@@ -1,3 +1,5 @@
+"""Typed configuration models for the ETL pipeline, loaded from config.yaml."""
+
 from pathlib import Path
 
 from pydantic import Field, BaseModel, field_validator
@@ -9,6 +11,7 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 CONFIG_FILE = BASE_DIR / "config.yaml"
 
 class HeaderSettings(BaseModel):
+    """HTTP headers sent with NSE archive requests, aliased to match config.yaml's casing."""
     model_config = SettingsConfigDict(populate_by_name=True)
 
     user_agent: str = Field(alias="User-Agent")
@@ -18,16 +21,19 @@ class HeaderSettings(BaseModel):
     referer: str = Field(alias="Referer")
 
 class RetrySettings(BaseModel):
+    """tenacity retry parameters for bhavcopy download attempts."""
     stop_after_attempts: int
     wait_multiplier: float
     wait_min: float
     wait_max: float
 
 class RateLimitSettings(BaseModel):
+    """Request throttling parameters enforced via pyrate_limiter."""
     max_requests: int
     duration_milliseconds: int
 
 class NSEClientConfig(BaseSettings):
+    """Configurations for NSEClient"""
     model_config = SettingsConfigDict(
         yaml_file=CONFIG_FILE,
         yaml_file_encoding="utf-8",
@@ -45,6 +51,7 @@ class NSEClientConfig(BaseSettings):
     @field_validator("download_dir")
     @classmethod
     def resolve_and_create_download_dir(cls, v: Path) -> Path:
+        """Resolves download_dir relative to the project root (if not already absolute) and ensures it exists."""
         resolved = v if v.is_absolute() else PROJECT_ROOT / v
         resolved.mkdir(parents=True, exist_ok=True)
         return resolved
@@ -65,6 +72,7 @@ class NSEClientConfig(BaseSettings):
         )
 
 class ExtractorConfig(BaseSettings):
+    """Configurations for Extractor"""
     model_config = SettingsConfigDict(
         yaml_file=CONFIG_FILE,
         yaml_file_encoding="utf-8",
@@ -77,6 +85,7 @@ class ExtractorConfig(BaseSettings):
     @field_validator("extract_dir")
     @classmethod
     def resolve_and_create_download_dir(cls, v: Path) -> Path:
+        """Resolves extract_dir relative to the project root (if not already absolute) and ensures it exists."""
         resolved = v if v.is_absolute() else PROJECT_ROOT / v
         resolved.mkdir(parents=True, exist_ok=True)
         return resolved

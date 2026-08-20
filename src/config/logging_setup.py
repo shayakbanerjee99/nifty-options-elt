@@ -1,3 +1,6 @@
+"""Configures Python logging from logging.yaml, rewriting any relative log
+file paths in the config to be relative to the project root."""
+
 import logging.config
 from pathlib import Path
 
@@ -9,6 +12,12 @@ LOGGER_CONFIG_FILE = BASE_DIR / "logging.yaml"
 
 
 def setup_logging() -> None:
+    """Loads logging.yaml and applies it via logging.config.dictConfig.
+
+    Rewrites handler 'filename' entries to absolute paths so logs land in a
+    consistent location regardless of the working directory the script is run from.
+    """
+
     with open(LOGGER_CONFIG_FILE, "r") as f:
         config = yaml.safe_load(f)
 
