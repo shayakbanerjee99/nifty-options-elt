@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger(__name__)
+
 CREATE_NIFTY_OPTIONS_TABLE = """
 CREATE TABLE IF NOT EXISTS nifty_options (
     date DATE,
@@ -27,3 +30,4 @@ CREATE TABLE IF NOT EXISTS nifty_options (
 
 def create_schema(con):
     con.execute(CREATE_NIFTY_OPTIONS_TABLE)
+    logger.info("Executed create table command")

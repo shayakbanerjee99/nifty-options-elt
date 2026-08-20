@@ -1,8 +1,12 @@
 from duckdb import DuckDBPyConnection
 
+import logging
+logger = logging.getLogger(__name__)
+
 def load_bhavcopy(con: DuckDBPyConnection, file_path: str, symbol: str):
     query = build_load_query(file_path, symbol)
     con.execute(query)
+    logger.info("Executed load query")
 
 def build_load_query(csv_path: str, symbol: str) -> str:
     query = f"""
@@ -33,5 +37,8 @@ def build_load_query(csv_path: str, symbol: str) -> str:
     WHERE TckrSymb = '{symbol}'
     ON CONFLICT DO NOTHING
     """
+
+    logger.debug("Load Query: %s", query)
+    logger.info("Constructed load query with csv_path: '%s' and symbol: '%s'", csv_path, symbol)
 
     return query
